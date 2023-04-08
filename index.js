@@ -5,7 +5,8 @@ const cors = require("cors");
 var AES = require("crypto-js/aes");
 require("dotenv").config();
 const mongoose = require("mongoose");
-const userDB = require ("./model.js")
+const userDB = require("./model.js")
+const { fetch } = require("node-fetch");
 
 let password = "";
 
