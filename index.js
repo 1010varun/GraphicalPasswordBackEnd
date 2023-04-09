@@ -9,6 +9,7 @@ const userDB = require("./model.js")
 const { fetch } = require("node-fetch");
 
 let password = "";
+let Imageid = [];
 
 
 const database = () => {
@@ -35,14 +36,14 @@ app.get("/", function (req, res) {
 
 app.post("/signup", async (req, res) => {
   const { id, theme, email, links } = req.body;
-  console.log("signup = ", id, theme);
+  // console.log("signup = ", id, theme);
 
   let secterKey = theme;  
   let encryptedData = "";
 
   for (let i = 0; i < id.length; i++) {
     encryptedData = AES.encrypt(id[i], secterKey).toString();
-    console.log(encryptedData);
+    // console.log(encryptedData);
     secterKey = encryptedData;
   }
 
@@ -58,6 +59,7 @@ app.post("/signup", async (req, res) => {
       email: email,
       allId: allLink,
       password: encryptedData,
+      id: id
     }
 
     await userDB.create(user);
@@ -74,10 +76,11 @@ app.post("/login", async (req, res) => {
 
   const user = await userDB.find({ email: email });
 
-  console.log(user);
+  // console.log(user);
 
   const Ids = user[0].allId;
   password = user[0].password;
+  Imageid = user[0].id;
 
   //console.log("id and password = ", Ids, password)
 
@@ -86,19 +89,38 @@ app.post("/login", async (req, res) => {
 
 app.post("/loginVerify", async (req, res) => {
   const { id, theme } = req.body;
+  let total = 0;
+  
 
-  console.log("login = ", id, theme);
+  // console.log("login = ", id, theme);
 
   let secterKey = theme;
   let encryptedData = "";
 
   for (let i = 0; i < id.length; i++) {
     encryptedData = AES.encrypt(id[i], secterKey).toString();
-    console.log(encryptedData);
+    // console.log(encryptedData);
     secterKey = encryptedData;
   }
+
+  for (let i = 0; i < id.length; i++){
+    if (id[i] === Imageid[i]) {
+      total++;
+    }
+  }
+
+  if (total === id.length) {
+    res.send("successfully logged in")
+  }
+  else {
+    res.send("error");
+  }
+
+
+
+
   
-  console.log(encryptedData, password);
+  // console.log(encryptedData, password);
 });
 
 
