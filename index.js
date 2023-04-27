@@ -18,6 +18,8 @@ const database = () => {
 
 global.fetch = fetch;
 
+// app.use(express.static("../GraphicalPasswordFrontEnd/build"))
+
 app.use(express.json({ limit: "50mb" }));
 app.use(urlencoded({ extended: false, limit: "50mb" }));
 
