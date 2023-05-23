@@ -56,13 +56,18 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, theme } = req.body;
   const user = await userDB.find({ email: email });
-  const userTheme = user[0].theme;
-  if (userTheme === theme) {
-    const Ids = user[0].allId;
-    password = user[0].password;
-    res.json({ Ids }).status(200);
-  } else {
-    res.status(400).send("THEME INCORRECT");
+  if (user.length === 0) {
+    res.status(404).send("NO USER FOUND");
+  }
+  else {
+    const userTheme = user[0].theme;
+    if (userTheme === theme) {
+      const Ids = user[0].allId;
+      password = user[0].password;
+      res.status(200).json({ Ids });
+    } else {
+      res.status(400).send("THEME INCORRECT");
+    }
   }
 });
 
@@ -73,7 +78,7 @@ app.post("/loginVerify", async (req, res) => {
     encryptedData += global.Buffer.from(id[i]).toString("base64");
   }
   if (encryptedData === password) {
-    res.send("successfully logged in").status(200);
+    res.status(200).send("successfully logged in");
   } else {
     res.status(401).send("ERROR");
   }
