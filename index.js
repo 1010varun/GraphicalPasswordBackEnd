@@ -27,6 +27,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.send("welcoe to node server");
+})
+
 app.post("/signup", async (req, res) => {
   const { theme, email, links, id } = req.body;
   const allUser = await userDB.find();
