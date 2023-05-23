@@ -2,19 +2,16 @@ const express = require("express");
 const app = express();
 const { urlencoded } = require("express");
 const cors = require("cors");
-var AES = require("crypto-js/aes");
 require("dotenv").config();
 const mongoose = require("mongoose");
-const userDB = require("./model.js")
+const userDB = require("./model.js");
 const { fetch } = require("node-fetch");
 
 let password = "";
-let Imageid = [];
-
 
 const database = () => {
   return mongoose.connect(process.env.MONGO_URI);
-}
+};
 
 global.fetch = fetch;
 
@@ -30,101 +27,47 @@ app.use(
   })
 );
 
-app.get("/", function (req, res) {
-  res.send("welcome to node server");
-});
-
-
-
 app.post("/signup", async (req, res) => {
-  const { id, theme, email, links } = req.body;
-  // console.log("signup = ", id, theme);
-
-  let secterKey = theme;  
-  let encryptedData = "";
-
-  for (let i = 0; i < id.length; i++) {
-    encryptedData = AES.encrypt(id[i], secterKey).toString();
-    // console.log(encryptedData);
-    secterKey = encryptedData;
-  }
-
+  const { theme, email, links, id } = req.body;
   const allUser = await userDB.find();
-  if (allUser.find(user => user.email === email)) {
-    // console.log("user already exists");
-    res.status(401).send("user already exists");
+  if (allUser.find((user) => user.email === email)) {
+    res.status(401).send("EMAIL EXISTS");
   } else {
-
-    allLink = links.map(link => link.id);
-
+    let encryptedData = global.Buffer.from(theme).toString("base64");
+    for (let i = 0; i < id.length; i++) {
+      encryptedData += global.Buffer.from(id[i]).toString("base64");
+    }
+    allLink = links.map((link) => link.id);
     const user = {
       email: email,
       allId: allLink,
       password: encryptedData,
-      id: id
-    }
-
+    };
     await userDB.create(user);
-    // console.log("user added successfully");
     res.status(200).send("user added successfully");
   }
-
 });
 
 app.post("/login", async (req, res) => {
   const { email } = req.body;
-  // console.log(email);
-  // res.send("got successfully");
-
   const user = await userDB.find({ email: email });
-
-  // console.log(user);
-
   const Ids = user[0].allId;
   password = user[0].password;
-  Imageid = user[0].id;
-
-  //console.log("id and password = ", Ids, password)
-
-  res.json({Ids})
-})
+  res.json({ Ids }).status(200);
+});
 
 app.post("/loginVerify", async (req, res) => {
   const { id, theme } = req.body;
-  let total = 0;
-  
-
-  // console.log("login = ", id, theme);
-
-  let secterKey = theme;
-  let encryptedData = "";
-
+  let encryptedData = global.Buffer.from(theme).toString("base64");
   for (let i = 0; i < id.length; i++) {
-    encryptedData = AES.encrypt(id[i], secterKey).toString();
-    // console.log(encryptedData);
-    secterKey = encryptedData;
+    encryptedData += global.Buffer.from(id[i]).toString("base64");
   }
-
-  for (let i = 0; i < id.length; i++){
-    if (id[i] === Imageid[i]) {
-      total++;
-    }
+  if (encryptedData === password) {
+    res.send("successfully logged in").status(200);
+  } else {
+    res.send("ERROR").status(401);
   }
-
-  if (total === id.length) {
-    res.send("successfully logged in")
-  }
-  else {
-    res.send("error");
-  }
-
-
-
-
-  
-  // console.log(encryptedData, password);
 });
-
 
 const port = process.env.PORT || 5000;
 
@@ -140,4 +83,3 @@ const connectDatabase = async () => {
 };
 
 connectDatabase();
-
