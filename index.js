@@ -46,6 +46,7 @@ app.post("/signup", async (req, res) => {
       email: email,
       allId: allLink,
       password: encryptedData,
+      theme,
     };
     await userDB.create(user);
     res.status(200).send("user added successfully");
@@ -53,11 +54,16 @@ app.post("/signup", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { email } = req.body;
+  const { email, theme } = req.body;
   const user = await userDB.find({ email: email });
-  const Ids = user[0].allId;
-  password = user[0].password;
-  res.json({ Ids }).status(200);
+  const userTheme = user[0].theme;
+  if (userTheme === theme) {
+    const Ids = user[0].allId;
+    password = user[0].password;
+    res.json({ Ids }).status(200);
+  } else {
+    res.status(400).send("THEME INCORRECT");
+  }
 });
 
 app.post("/loginVerify", async (req, res) => {
@@ -69,7 +75,7 @@ app.post("/loginVerify", async (req, res) => {
   if (encryptedData === password) {
     res.send("successfully logged in").status(200);
   } else {
-    res.send("ERROR").status(401);
+    res.status(401).send("ERROR");
   }
 });
 
