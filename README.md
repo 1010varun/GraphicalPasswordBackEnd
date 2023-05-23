@@ -20,11 +20,5 @@ the human brain is better at recognizing and remembering images than text.
 <img src="https://user-images.githubusercontent.com/103891145/230750908-4d83413a-7ef6-40e3-b4e0-936856644918.png">
 
 
-## Team members
-- [Varun Agarwal](https://github.com/1010varun)
-- [Garvit Agarwal](https://github.com/Garvit414)
-- [Harveer Narwar](https://github.com/narwar-veer)
-- [Gauravji Srivastava](https://github.com/GJS2162)
-
 
 
